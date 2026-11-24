@@ -101,6 +101,14 @@ app.get("/pedidos", (req, res) => {
   res.json(lista.vetorMemoria);
 });
 
+app.delete("/pedidos/:id", (req, res) => {
+  const removido = lista.remover(req.params.id);
+  if (!removido) {
+    return res.status(404).json({ erro: "Pedido não encontrado" });
+  }
+  res.json(lista.vetorMemoria);
+});
+
 app.listen(PORTA, () => {
-  console.log(`Servidor rodando na porta http://localhost:${PORTA}`);
+    console.log(`Servidor rodando em http://localhost:${PORTA}`);
 });

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Flora Atelier — Painel Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen text-gray-800">
+    <header class="bg-purple-950 text-white p-4 shadow flex justify-between items-center">
+        <h1 class="text-xl font-bold">🛠️ Flora Atelier — Painel Admin</h1>
+        <button onclick="lista.removerInicio()"
+            class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl">
+            ✓ Concluir Primeiro (HEAD)
+        </button>
+    </header>
+
+    <main class="max-w-3xl mx-auto p-6">
+        <section class="bg-white p-6 rounded-2xl shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold">Pedidos Recebidos</h2>
+                <span id="resumo" class="text-xs font-mono bg-slate-100 px-3 py-1 rounded"></span>
+            </div>
+            <div id="listaAdmin" class="space-y-3"></div>
+        </section>
+    </main>
+
+    <script src="listaPedidos.js"></script>
+    <script>
+        const lista = (window.opener && window.opener.listaPedidos)
+            ? window.opener.listaPedidos
+            : new ListaLigadaPedidos();
+
+        function renderizar() {
+            const container = document.getElementById('listaAdmin');
+            document.getElementById('resumo').textContent =
+                `HEAD: ${lista.head ? '#' + lista.head.id : 'NULL'} | Total: ${lista.tamanho}`;
+
+            if (!lista.head) {
+                container.innerHTML = '<p class="text-sm text-gray-400">Nenhum pedido na fila.</p>';
+                return;
+            }
+
+            let html = '';
+            let atual = lista.head;
+
+            while (atual !== null) {
+                const proximo = atual.proximo ? `#${atual.proximo.id}` : 'NULL';
+                html += `
+                    <div class="border rounded-xl p-4 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-purple-950">Pedido #${atual.id} — ${atual.cliente}</p>
+                            <p class="text-sm text-gray-700">${atual.quantidade}x ${atual.produto}</p>
+                            <p class="text-xs font-mono text-gray-400">próximo → ${proximo}</p>
+                        </div>
+                        <button onclick="lista.removerPorId(${atual.id})"
+                            class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-2 rounded-lg">
+                            Remover
+                        </button>
+                    </div>
+                `;
+                atual = atual.proximo;
+            }
+
+            container.innerHTML = html;
+        }
+
+        lista.aoAtualizar(renderizar);
+        renderizar();
+    </script>
+</body>
+</html>

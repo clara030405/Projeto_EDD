@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Flora Atelier — Cliente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-purple-50 min-h-screen text-gray-800">
+    <header class="bg-purple-800 text-white p-4 shadow flex justify-between items-center">
+        <h1 class="text-xl font-bold">🌸 Flora Atelier — Cliente</h1>
+        <button onclick="window.open('admin.html', 'AdminFlora', 'width=900,height=650')"
+            class="bg-purple-600 hover:bg-purple-500 px-3 py-1.5 rounded-lg text-sm font-medium">
+            Abrir Painel Admin ↗
+        </button>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6 grid md:grid-cols-2 gap-6">
+        <section class="bg-white p-6 rounded-2xl shadow">
+            <h2 class="text-lg font-bold text-purple-900 mb-4">Novo Pedido</h2>
+            <form id="formPedido" class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium">Nome</label>
+                    <input type="text" id="cliente" required placeholder="Ex: Clara"
+                        class="w-full border rounded-lg p-2 mt-1">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Buquê</label>
+                    <select id="produto" class="w-full border rounded-lg p-2 mt-1">
+                        <option value="Buquê Lavanda Real">Buquê Lavanda Real</option>
+                        <option value="Buquê Girassol & Margaridas">Buquê Girassol & Margaridas</option>
+                        <option value="Buquê Rosas Lilás">Buquê Rosas Lilás</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Quantidade</label>
+                    <input type="number" id="quantidade" value="1" min="1" required
+                        class="w-full border rounded-lg p-2 mt-1">
+                </div>
+                <button type="submit"
+                    class="w-full bg-purple-700 hover:bg-purple-800 text-white font-semibold py-2.5 rounded-xl">
+                    + Inserir Pedido
+                </button>
+            </form>
+        </section>
+
+        <section class="bg-white p-6 rounded-2xl shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-purple-900">Meus Pedidos</h2>
+                <span id="contador" class="text-xs bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full font-semibold"></span>
+            </div>
+            <div id="listaCliente" class="space-y-3"></div>
+        </section>
+    </main>
+
+    <script src="listaPedidos.js"></script>
+    <script>
+        window.listaPedidos = new ListaLigadaPedidos();
+
+        function renderizar() {
+            const lista = window.listaPedidos;
+            const container = document.getElementById('listaCliente');
+            document.getElementById('contador').textContent = `${lista.tamanho} nó(s)`;
+
+            if (!lista.head) {
+                container.innerHTML = '<p class="text-sm text-gray-400">Nenhum pedido cadastrado.</p>';
+                return;
+            }
+
+            let html = '';
+            let atual = lista.head;
+
+            while (atual !== null) {
+                const proximo = atual.proximo ? `#${atual.proximo.id}` : 'NULL';
+                html += `
+                    <div class="border border-purple-100 rounded-xl p-3 bg-purple-50/40 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-purple-900">Pedido #${atual.id} — ${atual.cliente}</p>
+                            <p class="text-sm text-gray-700">${atual.quantidade}x ${atual.produto}</p>
+                            <p class="text-xs font-mono text-purple-600">próximo → ${proximo}</p>
+                        </div>
+                        <button onclick="window.listaPedidos.removerPorId(${atual.id})"
+                            class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded-lg font-medium">
+                            Apagar
+                        </button>
+                    </div>
+                `;
+                atual = atual.proximo;
+            }
+
+            container.innerHTML = html;
+        }
+
+        document.getElementById('formPedido').addEventListener('submit', (e) => {
+            e.preventDefault();
+            window.listaPedidos.inserirFim(
+                document.getElementById('cliente').value.trim(),
+                document.getElementById('produto').value,
+                Number(document.getElementById('quantidade').value)
+            );
+            e.target.reset();
+            document.getElementById('quantidade').value = 1;
+        });
+
+        window.listaPedidos.aoAtualizar(renderizar);
+        renderizar();
+    </script>
+</body>
+</html>
